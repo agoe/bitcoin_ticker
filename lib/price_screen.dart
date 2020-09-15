@@ -19,7 +19,7 @@ class _PriceScreenState extends State<PriceScreen> {
     }
     return dropdownMenueItems;
   }
-  List<Text> getPickerCurrencys(){
+  List<Text> getPickerCurrencyItems(){
     List<Text> pickerCurrencies = [];
     for (String currency in currenciesList){
       var newItem = Text(currency);
@@ -73,9 +73,10 @@ class _PriceScreenState extends State<PriceScreen> {
                   });
                 }),*/
             child: CupertinoPicker(itemExtent: 32.0,
+                backgroundColor: Colors.lightBlue,
                 onSelectedItemChanged: (selectedIndex) {
               print(selectedIndex);
-            }, children: getPickerCurrencys()),
+            }, children: getPickerCurrencyItems()),
           ),
         ],
       ),
