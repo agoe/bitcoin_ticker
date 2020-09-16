@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:bitcoin_ticker/coin_data.dart';
 import 'package:bitcoin_ticker/networking.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,22 +11,43 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
-
   String selectedCurrency = 'EUR';
   String exchangeRate = null;
   String errMsg="";
 
-  List<DropdownMenuItem> getDropDownItems(){
-    List<DropdownMenuItem<String>> dropdownMenueItems = [];
-    for (String currency in currenciesList){
-      var newItem = DropdownMenuItem(child: Text(currency),value: currency);
-      dropdownMenueItems.add(newItem);
+  DropdownButton<String> getAndroidDropDownButton() {
+    List<DropdownMenuItem> getDropDownItems() {
+      List<DropdownMenuItem<String>> dropdownMenueItems = [];
+      for (String currency in currenciesList) {
+        var newItem = DropdownMenuItem(child: Text(currency), value: currency);
+        dropdownMenueItems.add(newItem);
+      }
+      return dropdownMenueItems;
     }
-    return dropdownMenueItems;
+
+    return DropdownButton(
+        value: selectedCurrency,
+        items: getDropDownItems(),
+        onChanged: (value) {
+          setState(() {
+            selectedCurrency = value;
+          });
+        });
   }
-  List<Text> getPickerCurrencyItems(){
+
+  CupertinoPicker getIOSPicker() {
+    return CupertinoPicker(
+        itemExtent: 32.0,
+        backgroundColor: Colors.lightBlue,
+        onSelectedItemChanged: (selectedIndex) {
+          print(selectedIndex);
+        },
+        children: getPickerCurrencyItems());
+  }
+
+  List<Text> getPickerCurrencyItems() {
     List<Text> pickerCurrencies = [];
-    for (String currency in currenciesList){
+    for (String currency in currenciesList) {
       var newItem = Text(currency);
       pickerCurrencies.add(newItem);
     }
@@ -33,7 +56,7 @@ class _PriceScreenState extends State<PriceScreen> {
   @override
   void initState() {
     super.initState();
-    var data = getExchangeRate('BTC', selectedCurrency);
+    getExchangeRate('BTC', selectedCurrency);
   }
   void updateUI(dynamic data) {
     setState(() {
@@ -49,6 +72,14 @@ class _PriceScreenState extends State<PriceScreen> {
       double rate = data['rate'] as double;
       exchangeRate = (rate).toStringAsFixed(2);
     });
+  }
+
+  Widget getPicker() {
+    if (Platform.isIOS) {
+      return getIOSPicker();
+    } else if (Platform.isAndroid) {
+      return getAndroidDropDownButton();
+    }
   }
 
   @override
@@ -87,19 +118,7 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            /*child: DropdownButton(
-                value: selectedCurrency,
-                items: getDropDownItems(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedCurrency = value;
-                  });
-                }),*/
-            child: CupertinoPicker(itemExtent: 32.0,
-                backgroundColor: Colors.lightBlue,
-                onSelectedItemChanged: (selectedIndex) {
-              print(selectedIndex);
-            }, children: getPickerCurrencyItems()),
+            child: Platform.isIOS ? getIOSPicker() : getAndroidDropDownButton(),
           ),
         ],
       ),
