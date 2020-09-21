@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:bitcoin_ticker/config.dart';
 import 'package:bitcoin_ticker/currency.dart';
 import 'package:bitcoin_ticker/networking.dart';
 
@@ -8,7 +9,9 @@ const String apiKey = 'b49b64a9010c7637af890fcc03d25bc6';
 class CurrencyModel {
   Future<Map<String, Currency>> getCurrencies() async {
     Map<String, Currency> currencies = SplayTreeMap<String, Currency>();
-    String url = 'http://localhost:3000/products/fiatquotes/eur';
+    //String url = 'http://localhost:3000/products/fiatquotes/eur';
+    Env.load();
+    String url = Env.eurQuotesUrl;
     print("getCurrencies");
     print(url);
     NetworkHelper nwH = NetworkHelper(url, "FIAT");
