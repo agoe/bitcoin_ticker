@@ -6,23 +6,19 @@ import 'package:bitcoin_ticker/networking.dart';
 import 'package:bitcoin_ticker/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 
 class PriceScreen extends StatefulWidget {
   @override
   _PriceScreenState createState() => _PriceScreenState();
-
 }
 
 class _PriceScreenState extends State<PriceScreen> {
   Currency selectedCurrency = Currency(exchangeRate: 1.0, symbol: 'EUR');
-  double exchangeRate = null;
-  String errMsg="";
+  double exchangeRate;
+  String errMsg = "";
 
-
-  Map<String,Currency> currencies = new Map();
-
+  Map<String, Currency> currencies = new Map();
 
   DropdownButton<Currency> getAndroidDropDownButton() {
     List<DropdownMenuItem<Currency>> getDropDownItems() {
@@ -33,7 +29,9 @@ class _PriceScreenState extends State<PriceScreen> {
       }*/
 
       for (Currency currency in this.currencies.values) {
-        var newItem = DropdownMenuItem<Currency>(child: Text('${currency.symbol} ${currency.exchangeRate}'), value: currency);
+        var newItem = DropdownMenuItem<Currency>(
+            child: Text('${currency.symbol} ${currency.exchangeRate}'),
+            value: currency);
         print("CropCurreny ${currency.symbol}");
         dropdownMenueItems.add(newItem);
       }
@@ -68,39 +66,38 @@ class _PriceScreenState extends State<PriceScreen> {
     }
     return pickerCurrencies;
   }
+
   @override
   void initState() {
     super.initState();
-    getExchangeRate('BTC','EUR');// selectedCurrency);
+    getExchangeRate('BTC', 'EUR'); // selectedCurrency);
     loadCurrencies();
-
   }
 
-  void loadCurrencies() async{
-     CurrencyModel currencyModel = CurrencyModel();
-     currencies = await currencyModel.getCurrencies();
-     if (currencies.length<=1){
-
-       Future.delayed(Duration.zero, (){
-         /*Get.defaultDialog(
+  void loadCurrencies() async {
+    CurrencyModel currencyModel = CurrencyModel();
+    currencies = await currencyModel.getCurrencies();
+    if (currencies.length <= 1) {
+      Future.delayed(Duration.zero, () {
+        /*Get.defaultDialog(
             onConfirm: () {print("Ok");/*Navigator.pop(context);*/},
             middleText: "Dialog made in 3 lines of code");*/
-         showOkAlertDialog(
-           context: context,
-           title: 'Only EURO Quotes',
-           alertStyle: AdaptiveStyle.cupertino,
-           message: 'error:'+NetworkHelper.gerErrMsg("FIAT"),
-         );
-       });
-     }
-     updateUIFiat(currencies);
+        showOkAlertDialog(
+          context: context,
+          title: 'Only EURO Quotes',
+          alertStyle: AdaptiveStyle.cupertino,
+          message: 'error:' + NetworkHelper.gerErrMsg("FIAT"),
+        );
+      });
+    }
+    updateUIFiat(currencies);
   }
 
   void updateUICrypto(dynamic data) {
     setState(() {
       if (data == null) {
         exchangeRate = null;
-        if(NetworkHelper.hasError("CRYPTO")){
+        if (NetworkHelper.hasError("CRYPTO")) {
           errMsg = NetworkHelper.gerErrMsg("CRYPTO");
         } else {
           errMsg = 'Exchangerate not available!';
@@ -111,12 +108,13 @@ class _PriceScreenState extends State<PriceScreen> {
       exchangeRate = CurrencyModel.round2(rate);
     });
   }
-  void updateUIFiat(Map<String,Currency> currenciesArg) {
+
+  void updateUIFiat(Map<String, Currency> currenciesArg) {
     setState(() {
       if (currencies == null) {
         exchangeRate = null;
-        if(NetworkHelper.hasError("FIAT")){
-          errMsg = NetworkHelper.gerErrMsg( "FIAT");
+        if (NetworkHelper.hasError("FIAT")) {
+          errMsg = NetworkHelper.gerErrMsg("FIAT");
         } else {
           errMsg = 'FiatQuotes not available!';
         }
@@ -130,6 +128,8 @@ class _PriceScreenState extends State<PriceScreen> {
     if (Platform.isIOS) {
       return getIOSPicker();
     } else if (Platform.isAndroid) {
+      return getAndroidDropDownButton();
+    } else {
       return getAndroidDropDownButton();
     }
   }
@@ -155,7 +155,7 @@ class _PriceScreenState extends State<PriceScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = ${exchangeRate == null ? '?' :CurrencyModel.round2( exchangeRate* selectedCurrency.exchangeRate  )} ${selectedCurrency.symbol}',
+                  '1 BTC = ${exchangeRate == null ? '?' : CurrencyModel.round2(exchangeRate * selectedCurrency.exchangeRate)} ${selectedCurrency.symbol}',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
@@ -177,18 +177,19 @@ class _PriceScreenState extends State<PriceScreen> {
     );
   }
 
-  dynamic  getExchangeRate  (String cryptoCur,String fiatCur) async {
-    const String apiKey = 'CAC34217-5841-4748-8FE5-7082FEC14FEB';
-    String url = 'http://localhost:3000/products/exchangerate/$cryptoCur/$fiatCur';
-    String url2 = 'https://rest.coinapi.io/v1/exchangerate/$cryptoCur/$fiatCur?apikey=$apiKey';
+  dynamic getExchangeRate(String cryptoCur, String fiatCur) async {
+    //const String apiKey = 'CAC34217-5841-4748-8FE5-7082FEC14FEB';
+    String url =
+        'http://localhost:3000/products/exchangerate/$cryptoCur/$fiatCur';
+    //String url2 = 'https://rest.coinapi.io/v1/exchangerate/$cryptoCur/$fiatCur?apikey=$apiKey';
     print(url);
     //String url = 'http://10.0.2.2:3000/products';
     //String url = 'http://localhost:3000/products';
 
-    NetworkHelper nwH = NetworkHelper(url,"CRYPTO");
-    dynamic  data = await nwH.getData();
-    if (data == null){
-      Future.delayed(Duration.zero, (){
+    NetworkHelper nwH = NetworkHelper(url, "CRYPTO");
+    dynamic data = await nwH.getData();
+    if (data == null) {
+      Future.delayed(Duration.zero, () {
         /*Get.defaultDialog(
             onConfirm: () {print("Ok");/*Navigator.pop(context);*/},
             middleText: "Dialog made in 3 lines of code");*/
@@ -196,18 +197,11 @@ class _PriceScreenState extends State<PriceScreen> {
           context: context,
           title: 'No Crypto Quotes available',
           alertStyle: AdaptiveStyle.cupertino,
-          message: 'error:'+NetworkHelper.gerErrMsg("CRYPTO"),
+          message: 'error:' + NetworkHelper.gerErrMsg("CRYPTO"),
         );
       });
     }
     updateUICrypto(data);
     return data;
   }
-
-  double calcCryptoExchangeRate(double exchangeRateToEuro,String fiatSymbol){
-
-    double fiatQuote = currencies[fiatSymbol].exchangeRate;
-
-  }
-
 }

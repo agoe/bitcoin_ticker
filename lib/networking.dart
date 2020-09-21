@@ -25,7 +25,10 @@ class NetworkHelper {
 
   Future getData() async {
     try {
-      try{_errMessages.remove(urlName);} catch(e){};
+      try{_errMessages.remove(urlName);}
+      catch(e){
+        print("Error removing outadted URL Err Message");
+      }
       responseStatusCode="";
       http.Response response = await http.get(url);
       responseStatusCode= responseStatusCode;
