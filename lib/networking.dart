@@ -4,16 +4,28 @@ import 'package:http/http.dart' as http;
 class NetworkHelper {
 
   final String url;
+  final String urlName;
 
-  static String responseErrMsg="";
+  //static String responseErrMsg="";
   static String responseStatusCode="";
+  static Map<String, String> _errMessages =Map<String, String>();
 
-  NetworkHelper(this.url);
+  static bool hasError(String urlName){
+    return _errMessages.containsKey(urlName);
+  }
+  static String gerErrMsg(String urlName){
+    return _errMessages.containsKey(urlName)? _errMessages[urlName] :'';
+  }
 
-  Future getWeatherData() async {
-    print('get Weather Data');
+  static  addErrMsg(String urlName,String errMsg){
+    _errMessages.putIfAbsent(urlName, () => errMsg);
+  }
+
+  NetworkHelper(this.url,this.urlName);
+
+  Future getData() async {
     try {
-      responseErrMsg="";
+      try{_errMessages.remove(urlName);} catch(e){};
       responseStatusCode="";
       http.Response response = await http.get(url);
       responseStatusCode= responseStatusCode;
@@ -26,7 +38,7 @@ class NetworkHelper {
         return jsonDecode(response.body);
       }else {
         try {
-          responseErrMsg = jsonDecode(response.body)['error'] as String;
+          addErrMsg(urlName,  jsonDecode(response.body)['error'] as String);
         }
         catch(e){
           print('Response Status Code: '+response.statusCode.toString());
@@ -40,6 +52,7 @@ class NetworkHelper {
     }
     catch(e){
       print("get url: "+e.toString());
+      addErrMsg(urlName,e.toString());
     }
 
   }

@@ -9,6 +9,8 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^0.12.2
+  get: ^3.10.2
+  adaptive_dialog:
 
   cupertino_icons: ^0.1.2
 
